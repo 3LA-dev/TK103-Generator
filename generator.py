@@ -3,19 +3,19 @@ import socket
 import os
 import time
 
-# Datos del servidor....
+# Data Server....
 HOST = '127.0.0.1'
 PORT = 8090
 ADDR = (HOST, PORT)
 
-#Datos generales Des dispositivo
-tracker_id 	= 	'527721199947' 				#Seguimiento de mensaje, puede ser la fecha
-device_id 	= 	'000017721199947' 			# 0000 + Numero Telefonico
-latitud 	= 	'2007.2384N' 				#dddmm.mmmm formato 
+#Data device
+tracker_id 	= 	'527721199947' 				#Message tracking, may be the date
+device_id 	= 	'000017721199947' 			# 0000 + telephone number
+latitud 	= 	'2007.2384N' 				#dddmm.mmmm format 
 longitud 	=	'09844.2176W'
 date 		= 	time.strftime('%y%m%d') 	#YYMMDD
 availability = 	'A'
-speed 		= 	'128.5' 					#k/m por hora
+speed 		= 	'128.5' 					#km/h
 times		= 	time.strftime('%H%M%S') 	#HHMMSS
 orientation = 	'185.21'
 IO_State 	= 	'1000000A' 
@@ -28,72 +28,70 @@ milepost 	=	'L'
 mile_data 	= 	'00000000' 					#Mileage data Max is OxFFFFFFFF
 GPS_Data = date+availability+latitud+longitud+speed+times+orientation+IO_State+milepost+mile_data
 
-# Creando TCP/IP socket
+# TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# Conectar a socket
-print 'Conectando a %s puerto %s' % ADDR
+print 'connecting to %s port %s' % ADDR
 sock.connect(ADDR)
 
 try:
 	while True:
 		os.system('clear')
-		print('            IP: %s Puerto: %s'%ADDR)
+		print('            Host: %s port: %s'%ADDR)
 		print('''==================================================
-::::::::::::::::Generador::TK103::::::::::::::::::
+::::::::::::::::Generator::TK103::::::::::::::::::
 ==================================================
-                    Comandos
+                    Commands
 __________________________________________________
 
-/login --- BP05  Mensaje de logeo
-/ping  --- BR00  Ping o datos GPS
-/alarm --- BO01  Mensaje de Alarma
+/login --- BP05  Message logging
+/ping  --- BR00  Ping or Data GPS
+/alarm --- BO01  Alarm message
 			''')
 		comando = raw_input('>>')
 		os.system('clear')
-		print('            IP: %s Puerto: %s'%ADDR)
+		print('            Host: %s port: %s'%ADDR)
 		print('''
 ==================================================
-::::::::::::::::Generador::TK103::::::::::::::::::
+::::::::::::::::Generator::TK103::::::::::::::::::
 ==================================================''')
-#::::::::::::::::::::::::::::::::::::::::::::::: Mensaje de logeo
+#::::::::::::::::::::::::::::::::::::::::::::::: Message logging
 		if (comando == '/login'):
 			print('''::::::::::::::::::::/login::::::::::::::::::::::::''')
 			message = '('+tracker_id+'BP05'+device_id+GPS_Data+')'
-			print '\n________________Trama: \n\n%s' % message
+			print '\n________________Frame: \n\n%s' % message
 			sock.sendall(message)
 			data = sock.recv(1024)
 			if data:
-				print '\n________________Respuesta:\n\n%s' % data
-#::::::::::::::::::::::::::::::::::::::::::::::: Ping, Datos GPS
+				print '\n________________Answer:\n\n%s' % data
+#::::::::::::::::::::::::::::::::::::::::::::::: Ping or Data GPS
 		elif (comando == '/ping'):
 			print('''::::::::::::::::::::/ping::::::::::::::::::::::::''')
 			message = '('+tracker_id+'BR00'+GPS_Data+')'
-			print '\n________________Trama: \n\n%s' % message
+			print '\n________________Frame: \n\n%s' % message
 			sock.sendall(message)
-#::::::::::::::::::::::::::::::::::::::::::::::: Mensaje de Alarma
+#::::::::::::::::::::::::::::::::::::::::::::::: Alarm message
 		elif (comando == '/alarm'):
 			print('''::::::::::::::::::::/alarm::::::::::::::::::::::::''')
 			print('''                Codigos de Alarma
-0 - Vehiculo Apagado
-1 - Accidente
-2 - Vehiculo Robado (SOS)
-3 - Alarma de Robado
-4 - Velocidad Baja
-5 - Velocidad Alta
-6 - Alarama de Geo-Fence''')
+0 - vehicle Off
+1 - Accident
+2 - SOS
+3 - Stolen alarm
+4 - Low Speed
+5 - High speed
+6 - Alarm Geo-Fence''')
 			x=raw_input('>> ')
 			message = '('+tracker_id+'BO01'+x+GPS_Data+')'
-			print '\n________________Trama: \n\n%s' % message
+			print '\n________________Frame: \n\n%s' % message
 			sock.sendall(message)
 			data = sock.recv(1024)
 			if data:
-				print '\n________________Respuesta:\n\n%s' % data
-#:::::::::::::::::::::::::::::::::::::::::::::::::::: Comando erroneo...
+				print '\n________________Answer:\n\n%s' % data
+#:::::::::::::::::::::::::::::::::::::::::::::::::::: wrong command...
 		else:
-			print'-------- Alert!: Comando no valido'
+			print'-------- Alert!: Invalid command'
 			time.sleep(2)
-		raw_input('\n*Presione Enter para continuar...')
+		raw_input('\n*Press Enter to continue...')
 
 finally:
 	sock.close()
